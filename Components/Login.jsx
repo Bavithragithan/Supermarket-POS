@@ -76,6 +76,7 @@ const Login = () => {
           <button type="submit" className="btn btn-primary btn-lg w-100 mb-3">Login</button>
         </form>
 
+        <label>I used firebase for authentication and store data</label>
         <label>Use: email as "skbavi1801@gmail.com" and password as "user@123"</label>
       </div>
 
