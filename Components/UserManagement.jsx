@@ -91,13 +91,13 @@ const UserManagementPage = () => {
                 const userRef = doc(db, "users", userId);
                 await deleteDoc(userRef);
 
+                setUsers((prevUsers) => prevUsers.filter(user => user.id !== userId));
+
                 const user = users.find(user => user.userId === userId);
                 if (user && user.email !== currentUser?.email) {
                     const userToDelete = await signInWithEmailAndPassword(auth, user.email, user.password);
                     await userToDelete.user.delete();
                 }
-
-                fetchUsers();
             } catch (err) {
                 console.error("Error deleting user: ", err);
                 setErrorMessage("Failed to delete user. Please try again.");
@@ -110,7 +110,12 @@ const UserManagementPage = () => {
             const userRef = doc(db, "users", userId);
             await updateDoc(userRef, { role: newRole });
             setSuccessMessage("User role updated successfully!");
-            fetchUsers();
+
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === userId ? { ...user, role: newRole } : user
+                )
+            );
         } catch (err) {
             console.error("Error updating role: ", err);
             setErrorMessage("Failed to update user role. Please try again.");
@@ -198,8 +203,9 @@ const UserManagementPage = () => {
                                         <th>User ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Actions</th>
+                                        <th>Role</th> 
+                                        <th>Update User Role</th>
+                                        <th>Delete User</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -208,6 +214,7 @@ const UserManagementPage = () => {
                                             <td>{user.userId}</td>
                                             <td>{user.name}</td>
                                             <td>{user.email}</td>
+                                            <td>{user.role}</td> 
                                             <td>
                                                 <Button
                                                     variant="info"
@@ -228,6 +235,7 @@ const UserManagementPage = () => {
                                     ))}
                                 </tbody>
                             </Table>
+
                         </Card.Body>
                     </Card>
                 </Col>
