@@ -1,0 +1,39 @@
+@media (max-width: 576px) {
+
+    .card-body {
+        padding: 1rem !important;
+    }
+
+    .form-control {
+        width: 100%;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .btn {
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    .form-control:focus {
+        border-color: #007bff !important;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .table thead {
+        display: block;
+    }
+
+    .table tbody {
+        display: block;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+}

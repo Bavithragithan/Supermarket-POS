@@ -1,0 +1,160 @@
+@media (max-width: 768px) {
+
+    .container-fluid {
+        padding: 20px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .form-control {
+        font-size: 14px;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .table {
+        font-size: 14px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table td button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .alert {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    h2,
+    h5 {
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .form-label {
+        font-size: 12px;
+    }
+
+    .form-control {
+        font-size: 12px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .table th,
+    .table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .table-responsive {
+        padding: 0;
+        overflow-x: auto;
+    }
+
+    .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .container-fluid {
+        padding: 10px;
+    }
+
+    .card {
+        margin-bottom: 15px;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+
+    .form-control {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 8px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .table {
+        font-size: 12px;
+        width: 100%;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table td button {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .alert {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    h2,
+    h5 {
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .table td {
+        font-size: 10px;
+    }
+
+    .card-title {
+        font-size: 14px;
+    }
+
+    .form-label {
+        font-size: 12px;
+    }
+}
