@@ -10,7 +10,7 @@ import Footer from "./Footer";
 
 const Dashboard = () => {
   return (
-    <div style={{ width: '210vh' }}>
+    <div style={{ width: '100vw' }}>
       <NavbarComponent />
 
       <div style={{ width: "100%", padding: "0", margin: "0" }}>

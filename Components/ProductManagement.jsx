@@ -206,7 +206,7 @@ const ProductManagement = () => {
 
             <Row>
                 <Col md={12}>
-                    <Card className="shadow-lg border-primary">
+                    <Card className="shadow-lg border-primary table-responsive">
                         <Card.Body>
                             <h5 className="text-center text-primary mb-4">Product List</h5>
                             <Table striped bordered hover responsive variant="light">

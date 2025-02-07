@@ -37,7 +37,7 @@ const SalesAnalysis = () => {
           <Card className="text-white bg-primary mb-3">
             <Card.Body>
               <Card.Title>Total Sales</Card.Title>
-              <Card.Text>$45,000</Card.Text>
+              <Card.Text>45,000.00</Card.Text>
             </Card.Body>
           </Card>
         </Col>
@@ -75,7 +75,7 @@ const SalesAnalysis = () => {
       </Row>
 
       <h5 className="text-center mb-3">Sales Data by Month</h5>
-      <div className="shadow p-4 bg-white rounded">
+      <div className="shadow p-4 bg-white rounded table-responsive">
         <Table striped bordered hover responsive>
           <thead>
             <tr>

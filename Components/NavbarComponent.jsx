@@ -4,6 +4,7 @@ import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { signOut } from "firebase/auth";
 import { auth } from "../Config/firebaseConfig";
 import useAuth from "./../hooks/useAuth";
+import "./../Styles/Navbar.css";
 
 const NavbarComponent = () => {
     const navigate = useNavigate();
