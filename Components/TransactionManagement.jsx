@@ -220,6 +220,68 @@ const TransactionPage = () => {
 
     };
 
+    const generateReceiptForTransaction = (transaction) => {
+        const doc = new jsPDF();
+        const transactionDetails = {
+            date: new Date(transaction.transactionDate?.seconds * 1000).toLocaleString(),  // Convert Firestore timestamp to readable date
+            items: transaction.items.map(item => {
+                const product = products.find(p => p.id === item.productID);
+                return { name: product ? product.name : "Unknown", quantity: item.quantity, price: product ? product.price : 0, total: item.quantity * (product ? product.price : 0) };
+            }),
+            discount: transaction.discount,
+            totalAmount: transaction.totalAmount
+        };
+
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text("Supermarket POS", 105, 15, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Date & Time: ${transactionDetails.date}`, 10, 30);
+
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 40, 190, 100);
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Product Details", 105, 50, { align: "center" });
+
+        let y = 60;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+
+        transactionDetails.items.forEach(item => {
+            doc.text(`${item.name} (x${item.quantity})`, 15, y);
+            doc.text(`${item.price} .00 * ${item.quantity}`, 130, y, { align: "right" });
+            doc.text(`${item.total} .00`, 170, y, { align: "right" });
+            y += 10;
+        });
+
+        y += 10;
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Discount: ${transactionDetails.discount}%`, 15, y);
+        doc.text(`Total Amount: ${transactionDetails.totalAmount} LKR`, 15, y + 10);
+
+        y += 20;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "italic");
+        doc.text("Thank you for shopping with us!", 105, y, { align: "center" });
+
+        doc.setLineWidth(0.5);
+        doc.line(10, y + 10, 200, y + 10);
+
+        const formattedDate = new Date(transaction.transactionDate?.seconds * 1000)
+            .toISOString()
+            .replace(/T/, '_')
+            .replace(/:/g, '-')
+            .split('.')[0];
+
+        doc.save(`receipt_${formattedDate}.pdf`);
+    };
+
 
 
 
@@ -359,12 +421,14 @@ const TransactionPage = () => {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>Transaction ID</th>
+                        <th>ID</th>
                         <th>User</th>
                         <th>Date</th>
                         <th>Products</th>
+                        <th>Discount</th>
                         <th>Total Amount</th>
-                        <th>Action</th>
+                        <th>Receipt</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -383,7 +447,16 @@ const TransactionPage = () => {
                                     return `${product ? product.name : "Unknown Product"} (x${item.quantity})${idx < transaction.items.length - 1 ? ', ' : ''}`;
                                 })}
                             </td>
+                            <td>{transaction.discount}%</td>
                             <td>{transaction.totalAmount} LKR</td>
+                            <td>
+                                <Button
+                                    variant="info"
+                                    onClick={() => generateReceiptForTransaction(transaction)}
+                                >
+                                    Download Receipt
+                                </Button>
+                            </td>
                             <td>
                                 <Button variant="danger" onClick={() => handleDeleteTransaction(transaction.id)}>
                                     Delete

@@ -216,6 +216,7 @@ const ProductManagement = () => {
                                         <th>Price (LKR)</th>
                                         <th>Category</th>
                                         <th>Stock</th>
+                                        <th>Supplier</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -233,6 +234,7 @@ const ProductManagement = () => {
                                                 <td>{product.price} LKR</td>
                                                 <td>{product.category}</td>
                                                 <td>{product.stock}</td>
+                                                <td>{product.supplier}</td>
                                                 <td>
                                                     <Button
                                                         variant="warning"

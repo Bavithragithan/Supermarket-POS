@@ -200,7 +200,6 @@ const UserManagementPage = () => {
                             <Table striped bordered hover responsive variant="light">
                                 <thead className="table-primary">
                                     <tr>
-                                        <th>User ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th> 
@@ -211,7 +210,6 @@ const UserManagementPage = () => {
                                 <tbody>
                                     {users.map((user) => (
                                         <tr key={user.id}>
-                                            <td>{user.userId}</td>
                                             <td>{user.name}</td>
                                             <td>{user.email}</td>
                                             <td>{user.role}</td> 
