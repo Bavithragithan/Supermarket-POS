@@ -41,6 +41,8 @@ const NavbarComponent = () => {
                     <Nav className="me-auto">
                         <Link className="nav-link" to="/dashboard">Home</Link>
                         <Link className="nav-link" to="/dashboard/products">Products</Link>
+                        <Link className="nav-link" to="/dashboard/category">Product Categories</Link>
+                        <Link className="nav-link" to="/dashboard/supplier">Suppliers</Link>
                         <Link className="nav-link" to="/dashboard/transactions">Transactions</Link>
                         <Link className="nav-link" to="/dashboard/users">Users</Link>
                     </Nav>

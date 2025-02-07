@@ -7,6 +7,8 @@ import SalesAnalysis from "./SalesAnalysis";
 import UsersManagement from "./UserManagement";
 import Login from "./Login";
 import Footer from "./Footer";
+import ProductCategoryManagement from "./CategoryManagement";
+import SupplierManagement from "./SupplierManagement";
 
 const Dashboard = () => {
   return (
@@ -17,6 +19,8 @@ const Dashboard = () => {
         <Routes>
           <Route path="/" element={<SalesAnalysis />} />
           <Route path="products" element={<ProductManagement />} />
+          <Route path="category" element={<ProductCategoryManagement/>} />
+          <Route path="supplier" element={<SupplierManagement />} />
           <Route path="transactions" element={<TransactionManagement />} />
           <Route path="users" element={<UsersManagement />} />
           <Route path="login" element={<Login />} />

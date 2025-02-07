@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, Table, Alert } from "react-bootstrap";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import { app } from "../Config/firebaseConfig";
 import jsPDF from 'jspdf';
 import './../Styles/Transaction.css';
@@ -116,15 +116,29 @@ const TransactionPage = () => {
                     items: transactionItems,
                     discount,
                     totalAmount,
-                    userId: selectedUser,  // Save selected user
+                    userId: selectedUser,  
                 });
+
+                for (let item of transactionItems) {
+                    const productRef = doc(db, "products", item.productID);
+                    const productDoc = await getDoc(productRef);
+
+                    if (productDoc.exists()) {
+                        const currentStock = productDoc.data().stock;
+                        const newStock = currentStock - item.quantity;
+
+                        await updateDoc(productRef, {
+                            stock: newStock
+                        });
+                    }
+                }
 
                 setTransactionId(transactionId + 1);
 
                 setTransactionItems([{ productID: "", quantity: 1 }]);
                 setDiscount(0);
                 setTotalAmount(0);
-                setSelectedUser("");  // Clear selected user after transaction is added
+                setSelectedUser("");
 
                 fetchTransactions();
             } catch (err) {
@@ -314,7 +328,6 @@ const TransactionPage = () => {
                                     />
                                 </Form.Group>
 
-                                {/* Add User Selection */}
                                 <Form.Group className="mb-3" controlId="formUser">
                                     <Form.Label>User</Form.Label>
                                     <Form.Control

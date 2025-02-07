@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, Table, Alert } from "react-bootstrap";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
-import { app } from "../Config/firebaseConfig"; 
+import { app } from "../Config/firebaseConfig";
 import "./../Styles/Product.css";
 
 const db = getFirestore(app);
@@ -12,9 +12,44 @@ const ProductManagement = () => {
     const [productCategory, setProductCategory] = useState("");
     const [productStock, setProductStock] = useState("");
     const [productSupplier, setProductSupplier] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
     const [products, setProducts] = useState([]);
-    const [errorMessage, setErrorMessage] = useState(""); 
+    const [errorMessage, setErrorMessage] = useState("");
     const [updateProductId, setUpdateProductId] = useState(null);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "categories"));
+                const categoryList = [];
+                querySnapshot.forEach((doc) => {
+                    categoryList.push({ id: doc.id, ...doc.data() });
+                });
+                setCategories(categoryList);
+            } catch (err) {
+                console.error("Error fetching categories: ", err);
+                setErrorMessage("Failed to load categories. Please try again.");
+            }
+        };
+
+        const fetchSuppliers = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "suppliers"));
+                const supplierList = [];
+                querySnapshot.forEach((doc) => {
+                    supplierList.push({ id: doc.id, ...doc.data() });
+                });
+                setSuppliers(supplierList);
+            } catch (err) {
+                console.error("Error fetching suppliers: ", err);
+                setErrorMessage("Failed to load suppliers. Please try again.");
+            }
+        };
+
+        fetchCategories();
+        fetchSuppliers();
+    }, []);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -68,7 +103,6 @@ const ProductManagement = () => {
         }
     };
 
-
     const handleUpdateProduct = async (e) => {
         e.preventDefault();
 
@@ -104,7 +138,6 @@ const ProductManagement = () => {
             setErrorMessage("Please provide all product details to update.");
         }
     };
-
 
     const handleDeleteProduct = async (id) => {
         try {
@@ -151,13 +184,21 @@ const ProductManagement = () => {
 
                                 <Form.Group className="mb-3" controlId="formProductCategory">
                                     <Form.Label>Product Category</Form.Label>
+
                                     <Form.Control
-                                        type="text"
-                                        placeholder="Enter product category"
+                                        as="select"
                                         value={productCategory}
                                         onChange={(e) => setProductCategory(e.target.value)}
                                         className="border-primary"
-                                    />
+                                    >
+                                        <option value="">Select Category</option>
+                                        {categories.map((category) => (
+                                            <option key={category.id} value={category.name}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+
                                 </Form.Group>
 
                                 <Form.Group className="mb-3" controlId="formProductPrice">
@@ -185,15 +226,20 @@ const ProductManagement = () => {
                                 <Form.Group className="mb-3" controlId="formProductSupplier">
                                     <Form.Label>Supplier Name / Brand</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        placeholder="Enter supplier name or brand name"
-                                        value={productSupplier}
-                                        onChange={(e) => setProductSupplier(e.target.value)}
+                                        as="select"
+                                        value={productSupplier} 
+                                        onChange={(e) => setProductSupplier(e.target.value)} 
                                         className="border-primary"
-                                    />
+                                    >
+                                        <option value="">Select Supplier</option>
+                                        {suppliers.map((supplier) => (
+                                            <option key={supplier.id} value={supplier.name}>
+                                                {supplier.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+
                                 </Form.Group>
-
-
 
                                 <Button variant="primary" type="submit" className="w-100">
                                     {updateProductId ? "Update Product" : "Add Product"}
