@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Config/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+import './../Styles/login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -36,8 +37,8 @@ const Login = () => {
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center min-vh-100"
-      style={{ backgroundColor: 'white', paddingLeft: '525px' }}
+      className="d-flex justify-content-center align-items-center min-vh-100 center-align"
+      style={{ backgroundColor: 'white' }}
     >
       <div
         className="card shadow-lg p-4 w-100"
@@ -76,15 +77,18 @@ const Login = () => {
           <button type="submit" className="btn btn-primary btn-lg w-100 mb-3">Login</button>
         </form>
 
-        <label>Here I used firebase for authentication and store data</label>
-        <label>Use: email as "skbavi1801@gmail.com" and password as "user@123"</label>
+        <div className="text-center">
+          <label>Here I used firebase for authentication and store data</label>
+          <br />
+          <label>Use: email as "skbavi1801@gmail.com" and password as "user@123"</label>
+        </div>
       </div>
 
       <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title className="text-danger">Login Failed</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Invalid Email or Password</Modal.Body>
+        <Modal.Body>{error}</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={closeModal}>Close</Button>
         </Modal.Footer>
