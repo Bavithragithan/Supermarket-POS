@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Form, Button, Table, Alert } from "react-bootstrap";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { app } from "../Config/firebaseConfig"; 
+import { app } from "../Config/firebaseConfig";
+import jsPDF from 'jspdf';
 import './../Styles/Transaction.css';
 
 const db = getFirestore(app);
@@ -9,12 +10,14 @@ const db = getFirestore(app);
 const TransactionPage = () => {
     const [products, setProducts] = useState([]);
     const [transactions, setTransactions] = useState([]);
+    const [users, setUsers] = useState([]);
     const [transactionDate, setTransactionDate] = useState(new Date().toISOString());
     const [transactionItems, setTransactionItems] = useState([{ productID: "", quantity: 1 }]);
     const [discount, setDiscount] = useState(0);
     const [totalAmount, setTotalAmount] = useState(0);
     const [errorMessage, setErrorMessage] = useState("");
-    const [transactionId, setTransactionId] = useState(0); 
+    const [transactionId, setTransactionId] = useState(0);
+    const [selectedUser, setSelectedUser] = useState("");
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -31,7 +34,22 @@ const TransactionPage = () => {
             }
         };
 
+        const fetchUsers = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                const userList = [];
+                querySnapshot.forEach((doc) => {
+                    userList.push({ id: doc.id, ...doc.data() });
+                });
+                setUsers(userList);
+            } catch (err) {
+                console.error("Error fetching users: ", err);
+                setErrorMessage("Failed to load users. Please try again.");
+            }
+        };
+
         fetchProducts();
+        fetchUsers();
     }, []);
 
     const fetchTransactions = async () => {
@@ -90,14 +108,15 @@ const TransactionPage = () => {
     const handleAddTransaction = async (e) => {
         e.preventDefault();
 
-        if (transactionItems.length > 0 && totalAmount > 0) {
+        if (transactionItems.length > 0 && totalAmount > 0 && selectedUser) {
             try {
                 await addDoc(collection(db, "transactions"), {
-                    transactionId,  
+                    transactionId,
                     transactionDate: new Date(),
                     items: transactionItems,
                     discount,
                     totalAmount,
+                    userId: selectedUser,  // Save selected user
                 });
 
                 setTransactionId(transactionId + 1);
@@ -105,6 +124,7 @@ const TransactionPage = () => {
                 setTransactionItems([{ productID: "", quantity: 1 }]);
                 setDiscount(0);
                 setTotalAmount(0);
+                setSelectedUser("");  // Clear selected user after transaction is added
 
                 fetchTransactions();
             } catch (err) {
@@ -134,7 +154,79 @@ const TransactionPage = () => {
         if (transactionItems.length > 0) {
             calculateTotalAmount();
         }
-    }, [transactionItems, discount]);  
+    }, [transactionItems, discount]);
+
+    const generateReceipt = () => {
+        const doc = new jsPDF();
+        const transaction = {
+            date: new Date(transactionDate).toLocaleString(),
+            items: transactionItems.map(item => {
+                const product = products.find(p => p.id === item.productID);
+                return { name: product ? product.name : "Unknown", quantity: item.quantity, price: product ? product.price : 0, total: item.quantity * (product ? product.price : 0) };
+            }),
+            discount,
+            totalAmount
+        };
+
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text("Supermarket POS", 105, 15, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Date & Time: ${transaction.date}`, 10, 30);
+
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 40, 190, 100);
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Product Details", 105, 50, { align: "center" });
+
+
+        let y = 60;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+
+        transaction.items.forEach(item => {
+            doc.text(`${item.name} (x${item.quantity})`, 15, y);
+            doc.text(`${item.price} .00 * ${item.quantity}`, 130, y, { align: "right" });
+            doc.text(`${item.total} .00`, 170, y, { align: "right" });
+            y += 10;
+        });
+
+        y += 10;
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Discount: ${transaction.discount}%`, 15, y);
+        doc.text(`Total Amount: ${transaction.totalAmount} LKR`, 15, y + 10);
+
+        y += 20;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "italic");
+        doc.text("Thank you for shopping with us!", 105, y, { align: "center" });
+
+        doc.setLineWidth(0.5);
+        doc.line(10, y + 10, 200, y + 10);
+
+        const formattedDate = new Date(transactionDate)
+            .toISOString()
+            .replace(/T/, '_')
+            .replace(/:/g, '-')
+            .split('.')[0];
+
+        doc.save(`receipt_${formattedDate}.pdf`);
+
+    };
+
+
+
+
+    const getUserName = (userId) => {
+        const user = users.find(user => user.id === userId);
+        return user ? user.name : "Unknown User";
+    };
 
     return (
         <Container fluid className="p-4">
@@ -160,6 +252,24 @@ const TransactionPage = () => {
                                     />
                                 </Form.Group>
 
+                                {/* Add User Selection */}
+                                <Form.Group className="mb-3" controlId="formUser">
+                                    <Form.Label>User</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={selectedUser}
+                                        onChange={(e) => setSelectedUser(e.target.value)}
+                                        className="border-primary"
+                                    >
+                                        <option value="">Select User</option>
+                                        {users.map((user) => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.name}
+                                            </option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+
                                 {transactionItems.map((item, index) => (
                                     <Row key={index} className="mb-3">
                                         <Col md={5}>
@@ -178,6 +288,7 @@ const TransactionPage = () => {
                                                 ))}
                                             </Form.Control>
                                         </Col>
+
                                         <Col md={3}>
                                             <Form.Label>Quantity</Form.Label>
                                             <Form.Control
@@ -188,11 +299,12 @@ const TransactionPage = () => {
                                                 className="border-primary"
                                             />
                                         </Col>
-                                        <Col md={2} className="align-self-end">
+
+                                        <Col md={2}>
                                             <Button
                                                 variant="danger"
                                                 onClick={() => handleRemoveProduct(index)}
-                                                className="w-100"
+                                                className="mt-3"
                                             >
                                                 Remove
                                             </Button>
@@ -200,7 +312,11 @@ const TransactionPage = () => {
                                     </Row>
                                 ))}
 
-                                <Button variant="success" onClick={handleAddProduct} className="mb-3">
+                                <Button
+                                    variant="primary"
+                                    onClick={handleAddProduct}
+                                    className="mb-4"
+                                >
                                     Add Product
                                 </Button>
 
@@ -216,18 +332,22 @@ const TransactionPage = () => {
                                     />
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" controlId="formTotalAmount">
-                                    <Form.Label>Total Amount (LKR)</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={totalAmount}
-                                        disabled
-                                        className="border-primary"
-                                    />
-                                </Form.Group>
-
-                                <Button variant="primary" type="submit" className="w-100">
+                                <h5>Total Amount: {totalAmount} LKR</h5>
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    className="w-100 mt-3"
+                                >
                                     Add Transaction
+                                </Button>
+
+
+                                <Button
+                                    variant="success"
+                                    onClick={generateReceipt}
+                                    className="w-100 mt-3"
+                                >
+                                    Generate Receipt
                                 </Button>
                             </Form>
                         </Card.Body>
@@ -235,51 +355,48 @@ const TransactionPage = () => {
                 </Col>
             </Row>
 
-            <Row>
-                <Col md={12}>
-                    <Card className="shadow-lg border-primary">
-                        <Card.Body>
-                            <h5 className="text-center text-primary mb-4">Transaction List</h5>
-                            <Table striped bordered hover responsive variant="light">
-                                <thead className="table-primary">
-                                    <tr>
-                                        <th>Transaction ID</th>
-                                        <th>Date & Time</th>
-                                        <th>Items</th>
-                                        <th>Total Amount</th>
-                                        <th>Discount</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {transactions.map((transaction) => (
-                                        <tr key={transaction.id}>
-                                            <td>{transaction.transactionId}</td>
-                                            <td>{new Date(transaction.transactionDate.seconds * 1000).toLocaleString()}</td>
-                                            <td>
-                                                {transaction.items.map((item, idx) => {
-                                                    const product = products.find(p => p.id === item.productID);
-                                                    return `${product ? product.name : "Unknown Product"} (x${item.quantity})${idx < transaction.items.length - 1 ? ', ' : ''}`;
-                                                })}
-                                            </td>
-                                            <td>{transaction.totalAmount} LKR</td>
-                                            <td>{transaction.discount}%</td>
-                                            <td>
-                                                <Button
-                                                    variant="danger"
-                                                    onClick={() => handleDeleteTransaction(transaction.id)}
-                                                >
-                                                    Delete
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
+            <h5 className="text-center text-primary mb-4">Previous Transactions</h5>
+            <Table striped bordered hover responsive>
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Products</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(transactions || []).map((transaction) => (
+                        <tr key={transaction.id}>
+                            <td>{transaction.transactionId}</td>
+                            <td>{getUserName(transaction.userId) || "Unknown User"}</td>
+                            <td>
+                                {transaction.transactionDate?.seconds
+                                    ? new Date(transaction.transactionDate.seconds * 1000).toLocaleString()
+                                    : "N/A"}
+                            </td>
+                            <td>
+                                {transaction.items.map((item, idx) => {
+                                    const product = products.find(p => p.id === item.productID);
+                                    return `${product ? product.name : "Unknown Product"} (x${item.quantity})${idx < transaction.items.length - 1 ? ', ' : ''}`;
+                                })}
+                            </td>
+                            <td>{transaction.totalAmount} LKR</td>
+                            <td>
+                                <Button variant="danger" onClick={() => handleDeleteTransaction(transaction.id)}>
+                                    Delete
+                                </Button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+
+
+            </Table>
+
+
         </Container>
     );
 };

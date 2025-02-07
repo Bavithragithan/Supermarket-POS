@@ -1,0 +1,68 @@
+/* NavbarComponent.css */
+
+/* Ensure the navbar is fully responsive */
+.navbar {
+    width: 100%;
+}
+
+/* Custom styling for the offcanvas */
+.offcanvas {
+    max-width: 250px; /* Adjust the width of the offcanvas menu */
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 992px) {
+    .offcanvas-body {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .offcanvas-body .nav-link {
+        width: 100%;
+        padding: 10px;
+        font-size: 1rem;
+    }
+
+    .offcanvas-body .nav-link:hover {
+        background-color: #f8f9fa;
+    }
+
+    .offcanvas-body .fw-bold {
+        margin-bottom: 10px;
+    }
+
+    .offcanvas-body .btn {
+        width: 100%;
+    }
+}
+
+/* Extra small devices (below 350px) */
+@media (max-width: 350px) {
+    .navbar-brand {
+        font-size: 1rem; /* Reduce brand text size */
+    }
+
+    .offcanvas {
+        max-width: 200px; /* Reduce offcanvas width */
+    }
+
+    .offcanvas-body .nav-link {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .offcanvas-body .fw-bold {
+        font-size: 0.85rem;
+    }
+
+    .offcanvas-body .btn {
+        font-size: 0.9rem;
+        padding: 6px;
+    }
+
+    .navbar-toggler {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+}
